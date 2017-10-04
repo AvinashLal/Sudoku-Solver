@@ -244,8 +244,14 @@ class Sudoku:
         with all the row factors being held consistent. 
         Should call `updateAllFactors` at end.
         """
-        raise NotImplementedError()
-        # self.updateAllFactors()
+        self.updateAllFactors()
+        while self.firstEpsilonVariable():
+        	r, c = self.firstEpsilonVariable()
+        	rowfactors = self.factorRemaining[ROW, r]
+        	selectfrom = [x for x in rowfactors if x is not None]
+        	self.board[r][c] = random.choice(selectfrom)
+        	self.updateVariableFactors((r,c))
+        self.updateAllFactors()
     
     # PART 6
     def randomSwap(self):
@@ -254,8 +260,13 @@ class Sudoku:
         Returns two random variables that can be swapped without
         causing a row factor conflict.
         """
-        raise NotImplementedError()
-      
+        fixed = self.fixedVariables
+        while True:
+        	randrow = random.choice(range(9))
+        	randc1 = random.choice(range(9))
+        	randc2 = random.choice(range(9))
+        	if not ((randc2 == randc1) or fixed.get((randrow, randc1), False) or fixed.get((randrow, randc2), False)):
+      			return (randrow, randc1), (randrow, randc2)
 
     # PART 7
     def gradientDescent(self, variable1, variable2):
@@ -263,7 +274,14 @@ class Sudoku:
         IMPLEMENT FOR PART 7
         Decide if we should swap the values of variable1 and variable2.
         """
-        raise NotImplementedError()
+        currentScore = self.numConflicts()
+        self.modifySwap(variable1, variable2)
+        newScore = self.numConflicts()
+        if newScore <= currentScore:
+        	return
+        if random.random() < 0.001:
+        	return
+        self.modifySwap(variable1, variable2)
 
         
     ### IGNORE - PRINTING CODE
